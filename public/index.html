@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QVAC Salary Counter-Offer Writer</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f3f6f4;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: #1c2a22;
+    display: flex;
+    justify-content: center;
+    padding: 48px 20px;
+  }
+  .wrap { width: 100%; max-width: 560px; }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 2px 14px rgba(20,50,30,0.08);
+    padding: 34px 36px;
+  }
+  .brand { font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: #0c8a4c; font-weight: 700; margin-bottom: 6px; }
+  h1 { font-size: 1.5rem; margin: 0 0 6px; color: #142a1e; font-weight: 800; }
+  .subtitle { color: #5a6e60; font-size: 0.9rem; margin-bottom: 26px; }
+  .field-label { font-size: 0.78rem; color: #5a6e60; margin-bottom: 6px; font-weight: 600; }
+  input[type=text] {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 8px;
+    border: 1px solid #c9dbcd;
+    background: #fbfdfb;
+    color: #1c2a22;
+    font-family: inherit;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+  }
+  input[type=text]:focus { outline: none; border-color: #0c8a4c; }
+  button.action {
+    padding: 11px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: #0c8a4c;
+    color: #fff;
+  }
+  button.action:hover:not(:disabled) { background: #096b3b; }
+  button.action:disabled { opacity: 0.4; cursor: not-allowed; }
+  .status { margin-top: 14px; font-size: 0.85rem; color: #7d8f82; min-height: 1.2em; }
+  .result-box {
+    margin-top: 22px;
+    padding: 18px 20px;
+    background: #eef8f1;
+    border-left: 3px solid #0c8a4c;
+    border-radius: 6px;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #1c2a22;
+  }
+  .footer-note { color: #7d8f82; font-size: 0.78rem; text-align: center; margin-top: 22px; }
+  .spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid #d6ebdc;
+    border-top-color: #0c8a4c;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">On-Device Negotiation Assistant</div>
+      <h1>Salary Counter-Offer Writer</h1>
+      <p class="subtitle">Enter the offer you received and what you're asking for, get a professional counter-offer message.</p>
+
+      <div class="field-label">INITIAL OFFER</div>
+      <input type="text" id="offerInput" placeholder="e.g. $90,000 base salary, no signing bonus" />
+      <div class="field-label">WHAT YOU'RE ASKING FOR</div>
+      <input type="text" id="askInput" placeholder="e.g. $100,000 base plus a $5,000 signing bonus" />
+      <button class="action" id="generateBtn">Write Counter-Offer</button>
+      <div class="status" id="status"></div>
+      <div id="resultBox"></div>
+    </div>
+
+    <p class="footer-note">Everything runs locally on your machine. No text ever leaves this device.</p>
+  </div>
+
+  <script>
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    const offerInput = document.getElementById('offerInput');
+    const askInput = document.getElementById('askInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const status = document.getElementById('status');
+    const resultBox = document.getElementById('resultBox');
+
+    async function generate() {
+      const offer = offerInput.value.trim();
+      const ask = askInput.value.trim();
+      if (!offer || !ask) return;
+      generateBtn.disabled = true;
+      resultBox.innerHTML = '';
+      status.innerHTML = '<span class="spinner"></span>Drafting your counter-offer...';
+
+      try {
+        const res = await fetch('/api/counter-offer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ offer, ask }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        status.textContent = '';
+        resultBox.innerHTML = `<div class="result-box">${escapeHtml(data.message)}</div>`;
+      } catch (err) {
+        status.textContent = 'Error: ' + err.message;
+      } finally {
+        generateBtn.disabled = false;
+      }
+    }
+
+    generateBtn.addEventListener('click', generate);
+  </script>
+</body>
+</html>

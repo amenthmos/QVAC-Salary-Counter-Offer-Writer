@@ -1,0 +1,15 @@
+{
+  "name": "qvac-salary-counter-offer-writer",
+  "version": "1.0.0",
+  "description": "Enter the initial offer and what you're asking for, get a professional counter-offer message grounded in those actual numbers, generated on-device. No cloud call, no API key.",
+  "type": "module",
+  "main": "src/gui.js",
+  "scripts": {
+    "start": "node src/gui.js",
+    "gui": "node src/gui.js"
+  },
+  "keywords": ["qvac", "on-device-ai", "negotiation", "career", "llm", "offline-ai"],
+  "license": "MIT",
+  "dependencies": { "@qvac/sdk": "^0.19.0" },
+  "engines": { "node": ">=22.17" }
+}
