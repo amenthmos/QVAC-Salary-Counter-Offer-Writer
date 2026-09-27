@@ -21,6 +21,15 @@ Built on [Tether's QVAC SDK](https://www.npmjs.com/package/@qvac/sdk) — all in
 
 Every number in the generated message is checked against the numbers you actually provided — if the model invents a figure that wasn't given, the app falls back to a safe message instead of shipping a fabricated number.
 
+## Example
+
+**Input:** offer `$78,000 base salary with standard benefits`, ask `$88,000 base, citing 4 years of relevant experience and a competing offer at $85,000`
+
+**Output:**
+```
+Considering my relevant experience and the current market, I believe my skills and qualifications warrant a salary closer to $88,000. With four years of experience in the field, I'm confident I can make significant contributions to the team. I've also received interest from other companies in the same range, which I believe reflects the current market demand. I'm open to discussing further to find a number that works for both of us.
+```
+
 ## License
 
 MIT
