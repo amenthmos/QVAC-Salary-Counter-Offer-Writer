@@ -53,10 +53,20 @@ function inventedNumbers(outputText, inputText) {
   return outputValues.some((v) => !inputValues.some((inV) => inV === v));
 }
 
+// Format a bare number like "85000" as "$85,000" for readability, but leave
+// input that already includes its own currency/units (e.g. "$85,000 base",
+// "85000 EUR") untouched rather than double-formatting it.
+function formatIfBareNumber(s) {
+  const trimmed = s.trim();
+  if (/^\d[\d,]*(\.\d+)?$/.test(trimmed)) {
+    return `$${Number(trimmed.replace(/,/g, "")).toLocaleString()}`;
+  }
+  return trimmed;
+}
+
 const FALLBACK = (offer, ask) =>
-  `Thank you for the offer. I've reviewed it carefully, and based on my research and experience, I'd like to counter: ` +
-  `the initial offer was "${offer}", and I'm asking for "${ask}". I believe this reflects the value I'd bring to the role, ` +
-  `and I'm happy to discuss further to find something that works for both of us.`;
+  `Thank you for the offer of ${formatIfBareNumber(offer)}. Based on my research and experience, I'd like to counter at ${formatIfBareNumber(ask)}. ` +
+  `I believe this reflects the value I'd bring to the role, and I'm happy to discuss further to find something that works for both of us.`;
 
 export async function generate(modelId, offer, ask) {
   const run = completion({
