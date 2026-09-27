@@ -29,20 +29,28 @@ function stripWrapping(text) {
     .trim();
 }
 
-// Extract numeric tokens (money amounts, percentages, plain numbers),
-// normalized to just their digit sequence for comparison — "$95,000" and
-// "95000" and "95k" all reduce to a comparable digit core.
-function extractNumberCores(text) {
+// Extract numeric tokens (money amounts, percentages, plain numbers) and
+// normalize each to its actual numeric value — "$95,000", "95000", and
+// "95k" all resolve to 95000. Comparing resolved values (rather than raw
+// digit substrings) avoids false negatives like "50000" being treated as
+// grounded just because it happens to be a substring of "150000".
+function extractNumberValues(text) {
   const matches = text.match(/\$?\d[\d,]*(\.\d+)?\s*[kK%]?/g) || [];
   return matches
-    .map((m) => m.replace(/[^0-9]/g, ""))
-    .filter((digits) => digits.length >= 2); // ignore stray single digits
+    .map((m) => {
+      const isK = /[kK]\s*$/.test(m.trim());
+      const digits = m.replace(/[^0-9.]/g, "");
+      const value = parseFloat(digits);
+      if (!Number.isFinite(value)) return null;
+      return isK ? value * 1000 : value;
+    })
+    .filter((v) => v !== null && v >= 10); // ignore stray single digits
 }
 
 function inventedNumbers(outputText, inputText) {
-  const outputCores = extractNumberCores(outputText);
-  const inputCores = extractNumberCores(inputText);
-  return outputCores.some((core) => !inputCores.some((inCore) => inCore.includes(core) || core.includes(inCore)));
+  const outputValues = extractNumberValues(outputText);
+  const inputValues = extractNumberValues(inputText);
+  return outputValues.some((v) => !inputValues.some((inV) => inV === v));
 }
 
 const FALLBACK = (offer, ask) =>
